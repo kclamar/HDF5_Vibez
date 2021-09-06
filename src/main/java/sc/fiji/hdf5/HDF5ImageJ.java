@@ -321,20 +321,7 @@ public class HDF5ImageJ
             for (int i = 0; i < data.length; ++i) {
               if (data[i] > maxGray) maxGray = data[i];
             }
-          } else if (typeText.equals( "int16")) {
-            MDShortArray rawdata = reader.int16().readMDArray(dsetName);
-            for( int lev = 0; lev < nLevels; ++lev) {
-              ImageProcessor ip = imp.getStack().getProcessor( imp.getStackIndex(
-                  channel+1, lev+1, frame+1));
-              System.arraycopy( rawdata.getAsFlatArray(), lev*sliceSize,
-                                (short[])ip.getPixels(),   0,
-                                sliceSize);
-            }
-            short[] data = rawdata.getAsFlatArray();
-            for (int i = 0; i < data.length; ++i) {
-              if (data[i] > maxGray) maxGray = data[i];
-            }
-          } else if (typeText.equals( "float32") || typeText.equals( "float64") ) {
+          } else if (typeText.equals( "float32") || typeText.equals( "float64") || typeText.equals( "int16") ) {
             MDFloatArray rawdata = reader.float32().readMDArray(dsetName);
             for( int lev = 0; lev < nLevels; ++lev) {
               ImageProcessor ip = imp.getStack().getProcessor( imp.getStackIndex(
@@ -545,35 +532,7 @@ public class HDF5ImageJ
           if (rawdata[i] > maxGray) maxGray = rawdata[i];
         }
       }
-      else if (typeText.equals( "int16") ) {
-        short[] rawdata = reader.int16().readMDArray(dsetName).getAsFlatArray();
-        for( int frame = 0; frame < nFrames; ++frame) {
-          for( int channel = 0; channel < nChannels; ++channel) {
-            for( int lev = 0; lev < nLevels; ++lev) {
-              ImageProcessor ip = imp.getStack().getProcessor( imp.getStackIndex(
-                  channel+1, lev+1, frame+1));
-              for( int row = 0; row < nRows; ++row) {
-                short[] trgData = (short[])ip.getPixels();
-                int trgOffset = row * nCols;
-                int srcOffset =
-                    frame * frameToFrameOffset
-                    + channel * channelToChannelOffset
-                    + lev * levelToLevelOffset
-                    + row * rowToRowOffset;
-                for( int col = 0; col < nCols; ++col) {
-                  trgData[trgOffset] = rawdata[srcOffset];
-                  ++trgOffset;
-                  srcOffset += colToColOffset;
-                }
-              }
-            }
-          }
-        }
-        for (int i = 0; i < rawdata.length; ++i) {
-          if (rawdata[i] > maxGray) maxGray = rawdata[i];
-        }
-      }
-      else if (typeText.equals( "float32")  || typeText.equals( "float64") ) {
+      else if (typeText.equals( "float32")  || typeText.equals( "float64") || typeText.equals( "int16") ) {
         float[] rawdata = reader.float32().readMDArray(dsetName).getAsFlatArray();
         for( int frame = 0; frame < nFrames; ++frame) {
           for( int channel = 0; channel < nChannels; ++channel) {
@@ -992,9 +951,9 @@ public class HDF5ImageJ
       } else {
         nBits = 8;
       }
-    } else if (type.equals("uint16") || type.equals("int16")) {
+    } else if (type.equals("uint16") ) {
       nBits = 16;
-    } else if (type.equals("float32") || type.equals("float64")) {
+    } else if (type.equals("float32") || type.equals("float64") || type.equals("int16") ) {
       nBits = 32;
     } else {
       IJ.error("Type '" + type + "' Not handled yet!");
